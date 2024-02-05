@@ -1,0 +1,187 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+
+using namespace std;
+
+class member
+{
+private:
+
+    int meals;
+    int rent;           //data members
+    int utility;
+    int paid;
+
+public:                  //access specifier public & private
+    member(string n, string mo, int m, int r, int u, int p);
+    member();           //constructor
+
+    string name;
+    string month;       //data members
+
+    void memberinfo();              //two member functions
+    string display(float rate);
+
+
+};
+
+
+member :: member(string n, string mo, int m, int r, int u, int p)
+{
+    name = n;
+    month = mo;
+    rent = r;
+    meals = m;
+    utility = u;
+    paid = p;
+}
+
+member :: member() {}
+
+void member::memberinfo()
+{
+    cout<<"Enter the Member's name: ";
+    getline(cin, name);
+    cout<<"Enter Month Name: ";
+    getline(cin, month);
+    cout<<endl;
+
+    cout<<"Enter Seat Rent of "<< name <<" :";
+    cin>> rent;
+    cin.ignore();       //cin.ignore() clears the newline function and prevents difficulties getting the next value
+    cout<<"Enter total no. of meals of "<< name <<" :";
+    cin>> meals;
+    cin.ignore();
+
+    cout<<"Enter Utilities fee(Gas/Electricity/Wifi): ";
+    cin>> utility;
+    cin.ignore();
+
+    cout<<"How much did he/she paid earlier(add amount or enter 0): ";
+    cin>> paid;         //paid amount
+    cin.ignore();
+    cout<<"Press ENTER twice to get receipt "<<endl;
+}
+
+float meal_rate(float bazar, int num_meals)
+{
+    return bazar/num_meals;  //total bazar cost is divided by the number if meals
+
+}
+string member::display(float rate)  //used to display the Receipt just after the cost calculation.
+{
+    float mealcost = meals*rate;
+    float total = mealcost + rent + utility;
+    float due = (total - paid);
+
+    ostringstream receipt;  //here string stream is a stream object that allows a string to be used as an internal text file.Ref.-Schaum's Outline
+    receipt << "\t Receipt for " <<name<<" in "<<month<<endl<<endl;
+
+    receipt << " Total Meal Counted:  "<< meals <<endl;
+    receipt << " Mealrate obtained :  " << rate <<endl;
+    receipt << " Mealcost          :  "<< mealcost <<endl;
+    receipt << " Rent              :  "<< rent <<endl;
+    receipt << " Utilities         :  "<< utility <<endl;
+    receipt << " ---------------------------------"<<endl;
+    receipt << " Total Bill        :  "<< total <<" BDT"<<endl;
+    receipt << " Paid earlier      :  "<< paid <<" BDT"<<endl;
+    receipt << " Due amount        :  " << due <<" BDT"<<endl;
+
+    return receipt.str();       //returns to display the calculation
+}
+
+
+//-----------------MAIN FUNCTION---------------------------------------
+int main()
+{
+    float bazar;
+    int num_meals;
+
+    cout<<"=====INTEGRATED MESS MANAGEMENT SYSTEM (IMMS)=====" <<endl;
+    cout<<"**************************************************" <<endl<<endl;
+
+    cout<<"Enter Total Bazar(Food) Cost: ";
+    cin>>bazar;
+    cout<<"Enter Total number of meals: ";
+    cin>>num_meals;
+
+    float rate = meal_rate(bazar, num_meals);
+
+    cout<< "Meal Rate of this month: "<< rate <<" BDT"<<endl<<endl;
+    cout<<"---------------------------------"<<endl;
+
+    vector <member> more;
+
+    while (true)
+    {
+        cout << "Main Menu"<<endl;
+        cout<<  "---------"<<endl;
+        cout << "1. Make a Individual Bill"<<endl;
+        cout << "2. Save Receipt to file"<<endl;
+        cout << "3. Exit"<<endl;
+        cout << "---------"<<endl;
+        cout << "Select [1/2/3]: ";
+        int select;
+
+        cin >> select;
+
+        switch (select)
+        {
+        case 1:
+        {
+            int num=0;
+            cout<<"How many individual bills? : ";
+            cin>>num;
+
+            for(int i =0; i<num; i++)
+            {
+                cin.ignore();
+
+                member mem;
+                mem.memberinfo();
+                cin.ignore();
+                more.push_back(mem);    //push_back used to add another member's bill calculation
+                cin.ignore();
+
+                cout<< mem.display(rate) <<endl;     //after calculating, it may show receipt
+            }
+        }
+        break;
+
+        case 2:
+        {
+            //texts adding to the file
+
+            ofstream file("Receipt.txt");       //will be saved to Receipt.txt named file
+            if(!file)
+            {
+                cerr<< "Unable to open file, sorry."<<endl;     //error handler
+                break;
+            }
+            for(int i =0; i < more.size(); i++)
+            {
+                string receipt = more[i].display(rate) ;
+                file << receipt <<endl;
+            }
+
+            file.close ();      //closing file
+            cout<<"Receipt Downloaded & Saved"<<endl; //downloaded indicates SAVED here actually
+            break;
+        }
+        case 3:
+
+            cout<<"\t Thank you for your Time"<<endl;
+            cout<<"\t Powered by- " <<endl;
+            cout<<"\t IMMS (Tasnimul Hasan, 20230105222)" <<endl;
+            return 0;
+            break;
+
+        default:
+            cout << "Oh no, pressed wrong? Try again here!"<<endl;  //error handler
+        }
+    }
+
+}
